@@ -1,5 +1,4 @@
 import time
-from cv2 import FastFeatureDetector_TYPE_9_16
 import requests
 import json
 import datetime
@@ -35,21 +34,9 @@ holiday_cache = deepcopy(holiday)
 holiday_name1 = ['元旦','除夕','清明节','劳动节','端午节','中秋节','国庆节']
 holiday_name2 = ['元旦','除夕','清明','五一','端午','中秋','国庆']
 
-def get_week_day(day):
-    week_day_dict = {
-        0 : '星期一',
-        1 : '星期二',
-        2 : '星期三',
-        3 : '星期四',
-        4 : '星期五',
-        5 : '星期六',
-        6 : '星期日',
-    }
-    return week_day_dict[day]
-
 def get_message():
     holiday_check = [0,0,0,0,0,0,0]
-    msg_am,msg_pm = '',''
+    msg,msg_am,msg_pm = '','',''
     for data in holiday_cache:
         info = holiday_cache[data]
         timeArray = time.strptime(info['date'], "%Y-%m-%d")
@@ -66,35 +53,51 @@ def get_message():
     msg_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend-1}天\n'+ msg_pm + text2 + '\n\n' + text3
     msg_change_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_am + text2 + '\n\n' + text3
     msg_change_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_pm + text2 + '\n\n' + text3
-    return msg_am,msg_pm,msg_change_am,msg_change_pm
+    url = 'http://timor.tech/api/holiday/info/'
+    r = requests.get(url)
+    holiday = r.json()
+    today_type = holiday['type']['type']
+    if today_type == 0:                                     #周末
+        if datetime.datetime.now().hour < 12:
+            msg=msg_am
+        elif datetime.datetime.now().hour > 12:
+            msg=msg_pm
+    elif today_type == 4:                                   #调休
+        if datetime.datetime.now().hour < 12:
+            msg=msg_change_am
+        elif datetime.datetime.now().hour > 12:
+            msg=msg_change_pm
+    return msg
 
 @sv.on_fullmatch("测试假期推送")
 async def send_holiday_message(bot, ev: CQEvent):
     try:
-        url = 'http://timor.tech/api/holiday/info/'
-        r = requests.get(url)
-        holiday = r.json()
-        today_type = holiday['type']['type']
-        print(today_type)
-        msg_am,msg_pm,msg_change_am,msg_change_pm = get_message()
-        if today_type == 0:         #周末
-            if datetime.datetime.now().hour < 12:
-                await bot.send(ev, str(msg_am))
-            elif datetime.datetime.now().hour > 12:
-                await bot.send(ev, str(msg_pm))
-        elif today_type == 4:       #调休
-            if datetime.datetime.now().hour < 12:
-                await bot.send(ev, str(msg_change_am))
-            elif datetime.datetime.now().hour > 12:
-                await bot.send(ev, str(msg_change_pm))
+        msg = get_message()
+        await bot.send(ev, str(msg))
     except Exception as e:
         print(e)
         await bot.send(ev, 'wuwuwu~~')
 
+
+
 @sv.scheduled_job('cron',hour='9')
+async def auto_send_holiday_message():
+    #这边为定时发送消息
+    #await bot.send(ev, "测试")
+    msg = get_message()
+    await sv.broadcast(msg, 'auto_send_holiday_message', 2)
+
+@sv.scheduled_job('cron',hour='15')
+async def auto_send_holiday_message():
+    #这边为定时发送消息
+    #await bot.send(ev, "测试")
+    msg = get_message()
+    await sv.broadcast(msg, 'auto_send_holiday_message',  2)
+    
+@sv.on_fullmatch("123")   
 async def auto_send_holiday_message(bot, ev: CQEvent):
-    if datetime.datetime.now().isoweekday()!=6 and datetime.datetime.now().isoweekday()!= 7:
-        return
+    #这边类似广播操作，设置口令就能全群广播
+    await sv.broadcast("msg", 'auto_send_holiday_message', 0.2)
     
 
 @sv.on_fullmatch("剩余假期")
