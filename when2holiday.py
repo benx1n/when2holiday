@@ -37,13 +37,14 @@ holiday_name2 = ['元旦','除夕','清明','五一','端午','中秋','国庆']
 def get_message():
     holiday_check = [0,0,0,0,0,0,0]
     msg,msg_am,msg_pm = '','',''
+    today = time.time()
     for data in holiday_cache:
         info = holiday_cache[data]
         timeArray = time.strptime(info['date'], "%Y-%m-%d")
         timeStamp = int(time.mktime(timeArray))
         for i in range(len(holiday_check)):
             if info['name'] == str(holiday_name1[i]) and holiday_check[i] == 0 and info['holiday'] == True and today < timeStamp:
-                time_int = int((timeStamp - today)/86400)+ 1
+                time_int = int((timeStamp - today)/86400) + 1
                 msg_am = msg_am + f'距离【{holiday_name2[i]}】还有：{time_int}天\n'
                 msg_pm = msg_pm + f'距离【{holiday_name2[i]}】还有：{time_int - 1}天\n'
                 holiday_check[i] = 1
