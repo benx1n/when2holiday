@@ -54,16 +54,18 @@ def get_message():
     msg_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend-1}天\n'+ msg_pm + text2 + '\n\n' + text3
     msg_change_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_am + text2 + '\n\n' + text3
     msg_change_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_pm + text2 + '\n\n' + text3
-    url = 'http://timor.tech/api/holiday/info/'
+    url = f'https://timor.tech/api/holiday/info/$'
+    print(url)
     r = requests.get(url)
     holiday = r.json()
     today_type = holiday['type']['type']
+    print(today_type)
     if today_type == 0:                                     #周末
         if datetime.datetime.now().hour < 12:
             msg=msg_am
         elif datetime.datetime.now().hour > 12:
             msg=msg_pm
-    elif today_type == 4:                                   #调休
+    elif today_type == 3:                                   #调休
         if datetime.datetime.now().hour < 12:
             msg=msg_change_am
         elif datetime.datetime.now().hour > 12:
@@ -74,7 +76,8 @@ def get_message():
 async def send_holiday_message(bot, ev: CQEvent):
     try:
         msg = get_message()
-        await bot.send(ev, str(msg))
+        if msg != '':
+            await bot.send(ev, str(msg))
     except Exception as e:
         print(e)
         await bot.send(ev, 'wuwuwu~~')
@@ -95,10 +98,10 @@ async def auto_send_holiday_message():
     msg = get_message()
     await sv.broadcast(msg, 'auto_send_holiday_message',  2)
     
-@sv.on_fullmatch("123")   
-async def auto_send_holiday_message(bot, ev: CQEvent):
-    #这边类似广播操作，设置口令就能全群广播
-    await sv.broadcast("msg", 'auto_send_holiday_message', 0.2)
+#@sv.on_fullmatch("123")   
+#async def auto_send_holiday_message(bot, ev: CQEvent):
+#    #这边类似广播操作，设置口令就能全群广播
+#    await sv.broadcast("msg", 'auto_send_holiday_message', 0.2)
     
 
 @sv.on_fullmatch("剩余假期")
