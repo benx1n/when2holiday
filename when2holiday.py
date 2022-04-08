@@ -54,13 +54,13 @@ def get_message():
     msg_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend-1}天\n'+ msg_pm + text2 + '\n\n' + text3
     msg_change_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_am + text2 + '\n\n' + text3
     msg_change_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_pm + text2 + '\n\n' + text3
-    url = f'https://timor.tech/api/holiday/info/$'
+    url = f'https://timor.tech/api/holiday/info'
     print(url)
     r = requests.get(url)
     holiday = r.json()
     today_type = holiday['type']['type']
     print(today_type)
-    if today_type == 0:                                     #周末
+    if today_type == 0:                                     #工作日
         if datetime.datetime.now().hour < 12:
             msg=msg_am
         elif datetime.datetime.now().hour > 12:
