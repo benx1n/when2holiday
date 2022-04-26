@@ -114,7 +114,7 @@ async def year_holiday(bot, ev: CQEvent):
         timeArray = time.strptime(info['date'], "%Y-%m-%d")
         timeStamp = time.mktime(timeArray)
         if info['holiday'] == True and today < timeStamp:
-            day = datetime.strptime(info['date'], "%Y-%m-%d").weekday()
+            day = datetime.datetime.strptime(info['date'], "%Y-%m-%d").weekday()
             if day == 5 or day == 6:
                 false_holiday = false_holiday + 1
             time_int = int((timeStamp - today)/86400)+ 1
