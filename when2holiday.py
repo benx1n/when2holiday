@@ -53,7 +53,7 @@ def get_message():
     to_weekend = 6 - datetime.datetime.now().isoweekday()
     msg_normal_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日上午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend}天\n'+ msg_am + text2 + '\n\n' + text3
     msg_normal_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend-1}天\n'+ msg_pm + text2 + '\n\n' + text3
-    msg_change_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_am + text2 + '\n\n' + text3
+    msg_change_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日上午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_am + text2 + '\n\n' + text3
     msg_change_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_pm + text2 + '\n\n' + text3
     url = f'https://timor.tech/api/holiday/info'
     print(url)
@@ -150,7 +150,7 @@ def get_message_test(test_day):
     to_weekend = 6 - d1.isoweekday()
     msg_normal_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日上午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend}天\n'+ msg_am + text2 + '\n\n' + text3
     msg_normal_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend-1}天\n'+ msg_pm + text2 + '\n\n' + text3
-    msg_change_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_am + text2 + '\n\n' + text3
+    msg_change_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日上午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_am + text2 + '\n\n' + text3
     msg_change_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_pm + text2 + '\n\n' + text3
     url = f'https://timor.tech/api/holiday/info/{test_day}'
     print(url)
