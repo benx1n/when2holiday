@@ -1,3 +1,4 @@
+from cgi import test
 import time
 import requests
 import json
@@ -50,8 +51,8 @@ def get_message():
                 holiday_check[i] = 1
     d1 = datetime.datetime.now()
     to_weekend = 6 - datetime.datetime.now().isoweekday()
-    msg_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日上午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend}天\n'+ msg_am + text2 + '\n\n' + text3
-    msg_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend-1}天\n'+ msg_pm + text2 + '\n\n' + text3
+    msg_normal_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日上午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend}天\n'+ msg_am + text2 + '\n\n' + text3
+    msg_normal_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend-1}天\n'+ msg_pm + text2 + '\n\n' + text3
     msg_change_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_am + text2 + '\n\n' + text3
     msg_change_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_pm + text2 + '\n\n' + text3
     url = f'https://timor.tech/api/holiday/info'
@@ -62,27 +63,15 @@ def get_message():
     print(today_type)
     if today_type == 0:                                     #工作日
         if datetime.datetime.now().hour < 12:
-            msg=msg_am
+            msg=msg_normal_am
         elif datetime.datetime.now().hour > 12:
-            msg=msg_pm
+            msg=msg_normal_pm
     elif today_type == 3:                                   #调休
         if datetime.datetime.now().hour < 12:
             msg=msg_change_am
         elif datetime.datetime.now().hour > 12:
             msg=msg_change_pm
     return msg
-
-@sv.on_fullmatch("测试假期推送")
-async def send_holiday_message(bot, ev: CQEvent):
-    try:
-        msg = get_message()
-        if not msg :
-            msg = "好耶，今天是休息日"
-        await bot.send(ev, str(msg))
-    except Exception as e:
-        print(e)
-        await bot.send(ev, 'wuwuwu~~')
-
 
 
 @sv.scheduled_job('cron',hour='9')
@@ -140,3 +129,55 @@ async def today_holiday():
         json.dump(holiday, f)
 
 
+#以下为测试用方法
+
+def get_message_test(test_day):
+    holiday_check = [0,0,0,0,0,0,0]
+    msg,msg_am,msg_pm = '','',''
+    today = time.mktime(time.strptime(f"{test_day} 09:00:00","%Y-%m-%d %H:%M:%S"))
+    for data in holiday_cache:
+        info = holiday_cache[data]
+        timeArray = time.strptime(info['date'], "%Y-%m-%d")
+        timeStamp = int(time.mktime(timeArray))
+        for i in range(len(holiday_check)):
+            if info['name'] == str(holiday_name1[i]) and holiday_check[i] == 0 and info['holiday'] == True and today < timeStamp:
+                time_int = int((timeStamp - today)/86400) + 1
+                msg_am = msg_am + f'距离【{holiday_name2[i]}】还有：{time_int}天\n'
+                msg_pm = msg_pm + f'距离【{holiday_name2[i]}】还有：{time_int - 1}天\n'
+                holiday_check[i] = 1
+    d1 = datetime.datetime.strptime(f"date:{test_day},time:09:00:00",'date:%Y-%m-%d,time:%H:%M:%S')
+    print(d1)
+    to_weekend = 6 - d1.isoweekday()
+    msg_normal_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日上午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend}天\n'+ msg_am + text2 + '\n\n' + text3
+    msg_normal_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'距离【周末】还有：{to_weekend-1}天\n'+ msg_pm + text2 + '\n\n' + text3
+    msg_change_am = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_am + text2 + '\n\n' + text3
+    msg_change_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，'+ text1 + '\n' + f'今天是节假日调休\n'+ msg_pm + text2 + '\n\n' + text3
+    url = f'https://timor.tech/api/holiday/info/{test_day}'
+    print(url)
+    r = requests.get(url)
+    holiday = r.json()
+    today_type = holiday['type']['type']
+    print(today_type)
+    if today_type == 0:                                     #工作日
+        if d1.hour < 12:
+            msg=msg_normal_am
+        elif d1.hour > 12:
+            msg=msg_normal_pm
+    elif today_type == 3:                                   #调休
+        if d1.hour < 12:
+            msg=msg_change_am
+        elif d1.hour > 12:
+            msg=msg_change_pm
+    return msg
+
+@sv.on_prefix("测试假期推送")
+async def test_holiday_msg(bot, ev: CQEvent):
+    test_day = str(ev.message).strip()
+    try:
+        msg = get_message_test(test_day)
+        if not msg :
+            msg = "好耶，今天是休息日"
+        await bot.send(ev, str(msg))
+    except Exception as e:
+        print(e)
+        await bot.send(ev, '请在指令后跟随标准日期格式哦，如2022-06-01')
