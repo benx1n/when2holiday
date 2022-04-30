@@ -16,3 +16,5 @@
   <img src="https://s1.ax1x.com/2022/04/25/Lo5w7D.jpg" width="300" />
 </div>
 
+## TODO
+- [ ] 按群自定义推送消息结构

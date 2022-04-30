@@ -76,8 +76,9 @@ def get_message():
 async def send_holiday_message(bot, ev: CQEvent):
     try:
         msg = get_message()
-        if msg != '':
-            await bot.send(ev, str(msg))
+        if not msg :
+            msg = "好耶，今天是休息日"
+        await bot.send(ev, str(msg))
     except Exception as e:
         print(e)
         await bot.send(ev, 'wuwuwu~~')
