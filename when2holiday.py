@@ -232,7 +232,10 @@ async def test_holiday_msg(bot, ev: CQEvent):
         if match:
             test_day = f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
         else:
-            await bot.finish(ev, "日期格式错误~请确保年月日之间有隔开~")
+            if re.search(r"(?i)今[日天]|现在|now|today", test_day):
+                test_day = datetime.datetime.now().strftime('%Y-%m-%d')
+            else:
+                await bot.finish(ev, "日期格式错误~请确保年月日之间有隔开~")
         msg = get_message_test(test_day, ev.group_id)
         if not msg:
             msg = "好耶，今天是休息日"
