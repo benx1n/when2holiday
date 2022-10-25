@@ -6,6 +6,7 @@ from copy import deepcopy
 from os.path import dirname, join, exists
 
 import requests
+import traceback
 
 import hoshino
 import re
@@ -207,7 +208,11 @@ def get_message_test(test_day, group=None):
     msg_change_pm = f'【摸鱼办】提醒您：{d1.month}月{d1.day}日下午好，{text1}\n今天是节假日调休\n\n{msg_pm}{text2}\n\n{text3}'
     url = f'https://timor.tech/api/holiday/info/{test_day}'
     print(url)
-    r = requests.get(url)
+    header={
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"
+    }
+    r = requests.get(url,headers=header)
+    print(r)
     holiday = r.json()
     today_type = holiday['type']['type']
     # print(today_type)
@@ -241,5 +246,5 @@ async def test_holiday_msg(bot, ev: CQEvent):
             msg = "好耶，今天是休息日"
         await bot.send(ev, str(msg))
     except ValueError as e:
-        hoshino.logger.warning(f"{e}")
+        hoshino.logger.warning(traceback.format_exc())
         await bot.send(ev, '请在指令后跟随标准日期格式哦，如2022-06-01')
